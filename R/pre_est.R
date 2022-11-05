@@ -9,6 +9,7 @@
 #' @export
 #' @import rTensor MASS
 #' @examples
+#' \dontrun{
 #' # Example using generated data
 #' K = 2
 #' T = 100
@@ -31,6 +32,7 @@
 #' set.seed(10)
 #' Q_PRE_2 = pre_est(value_weight_tensor, z = c(2,2))
 #' Q_PRE_2
+#' }
 
 
 

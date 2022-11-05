@@ -9,6 +9,7 @@
 #' @export
 #' @import rTensor MASS
 #' @examples
+#' \dontrun{
 #' # Example using generated data
 #' K = 2
 #' T = 100
@@ -34,6 +35,7 @@
 #' Q_PRE = pre_est(value_weight_tensor)
 #' Q_PROJ_2 = iter_proj(value_weight_tensor, initial_direction = Q_PRE, z = c(2,2))
 #' Q_PROJ_2
+#' }
 
 
 

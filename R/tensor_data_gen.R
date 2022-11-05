@@ -17,6 +17,7 @@
 #' @import rTensor MASS stats
 #' @importFrom pracma randortho
 #' @examples
+#' \dontrun{
 #' set.seed(10)
 #' K = 2
 #' T = 100
@@ -27,6 +28,7 @@
 #' u = list(c(-2,2),c(-2,2))
 #' Data_test = tensor_data_gen(K,T,d,r,re,eta,u)
 #' print(Data_test$X)
+#' }
 
 
 

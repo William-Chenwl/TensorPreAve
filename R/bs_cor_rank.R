@@ -10,6 +10,7 @@
 #' @export
 #' @import rTensor MASS
 #' @examples
+#' \dontrun{
 #' # Example using generated data
 #' K = 2
 #' T = 100
@@ -32,6 +33,7 @@
 #' Q_PROJ = iter_proj(value_weight_tensor, initial_direction = Q_PRE)
 #' bs_rank = bs_cor_rank(value_weight_tensor, Q_PROJ)
 #' bs_rank
+#' }
 
 
 

@@ -33,6 +33,7 @@ Function to estimate the rank of the core tensor by Bootstrapped Correlation Thr
 Input a tensor time series and estimated projection directions, return the estimated rank of core tensor.
 }
 \examples{
+\dontrun{
 # Example using generated data
 K = 2
 T = 100
@@ -55,4 +56,5 @@ Q_PRE = pre_est(value_weight_tensor)
 Q_PROJ = iter_proj(value_weight_tensor, initial_direction = Q_PRE)
 bs_rank = bs_cor_rank(value_weight_tensor, Q_PROJ)
 bs_rank
+}
 }

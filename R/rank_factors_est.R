@@ -16,7 +16,8 @@
 #' @import rTensor MASS
 #' @importFrom stats var
 #' @examples
-#' #' # Example using generated data
+#' \dontrun{
+#' # Example using generated data
 #' K = 2
 #' T = 100
 #' d = c(40,40)
@@ -34,6 +35,7 @@
 #' set.seed(10)
 #' results = rank_factors_est(value_weight_tensor)
 #' results
+#' }
 
 
 
