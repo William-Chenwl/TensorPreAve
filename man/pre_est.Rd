@@ -25,7 +25,16 @@ Function for the initial Pre-Averaging Procedure.
 Input a tensor time series and return the estimated factor loading matrices using pre-averaging method.
 }
 \examples{
-\dontrun{
+# Example of a real data set
+set.seed(10)
+Q_PRE = pre_est(value_weight_tensor)
+Q_PRE
+
+set.seed(10)
+Q_PRE_2 = pre_est(value_weight_tensor, z = c(2,2))
+Q_PRE_2
+
+\donttest{
 # Example using generated data
 K = 2
 T = 100
@@ -39,14 +48,5 @@ Data_test = tensor_data_gen(K,T,d,r,re,eta,u)
 X = Data_test$X
 Q_PRE = pre_est(X, z = r)
 Q_PRE
-
-# Example of a real data set
-set.seed(10)
-Q_PRE = pre_est(value_weight_tensor)
-Q_PRE
-
-set.seed(10)
-Q_PRE_2 = pre_est(value_weight_tensor, z = c(2,2))
-Q_PRE_2
 }
 }

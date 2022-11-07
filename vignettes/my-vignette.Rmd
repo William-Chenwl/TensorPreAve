@@ -24,7 +24,7 @@ library(TensorPreAve)
 This package provides function to estimate the rank and factor loading spaces of time series tensor factor models. A $K$-th order tensor time series can be stored as a 'Tensor' object with $K+1$ modes, with mode-1 corresponds to time. See \pkg{rTensor} for the operations of 'Tensor' objects. As an example, value weighted Fama-French portfolio returns data formed on 10 levels of size and 10 levels of operating profitability can be shaped as a tensor time series, with monthly data from July 1973 to June 2021 so that T = 576. (See @Chen_Lam for more details.) The data tensor thus has size 576 × 10 × 10 tensor, and can be stored in the following 'Tensor' object.
 
 ```{r}
-value_weight_tensor
+value_weight_tensor@modes
 ```
 
 We also provide a function 'tensor_data_gen' to generate random tensor time series based on econometric factor model assumptions. (See @Chen_Lam for more details on the assumptions.) 
@@ -32,7 +32,7 @@ We also provide a function 'tensor_data_gen' to generate random tensor time seri
 ```{r}
 # Setting tensor dimensions and parameters related to data generation
 K = 2                     # The number of modes for the tensor time series
-T = 100                   # Length of time series.
+n = 100                   # Length of time series.
 d = c(10,10)              # Dimensions of each mode of the tensor
 r = c(2,2)                # Rank of core tensors,
 re = 10                   # Dimension of the cross-sectional common error
@@ -40,15 +40,24 @@ eta = list(c(0,0),c(0,0)) # Control factor strengths in each factor loading matr
 u = list(c(-2,2),c(-2,2)) # Control the range of elements in each factor loading matrix
 
 set.seed(10)
-Data_test = tensor_data_gen(K,T,d,r,re,eta,u)
-Data_test$X
+Data_test = tensor_data_gen(K,n,d,r,re,eta,u)
+
+X = Data_test$X
+A = Data_test$A
+F_ts = Data_test$F_ts
+E_ts = Data_test$E_ts
+
+X@modes
+F_ts@modes
+E_ts@modes
+dim(A[[1]])
 ```
 
 
 
 ## Pre-averaging method to estimate the strongest factor
 
-Given a time series tensor factor model, 'pre_est' estimates the factor loading matrices by setting \code{z} to be the rank of core tensors if it is known. 
+Given a time series tensor factor model, 'pre_est' estimates the factor loading matrices by setting $z$ to be the rank of core tensors if it is known. 
 
 ```{r}
 X = value_weight_tensor
@@ -57,7 +66,7 @@ Q_PRE_2 = pre_est(X, z = c(2,2))
 Q_PRE_2
 ```
 
-For most cases we do not know the true number of factors. In @Chen_Lam, pre-averaging procedure is used to estimate the directions corresponding to the strongest factors by setting \code{z} is \code{z = rep(1,K)}, which is also the default value in the function.
+For most cases we do not know the true number of factors. In @Chen_Lam, pre-averaging procedure is used to estimate the directions corresponding to the strongest factors by setting $z$ to be a vector of ones of length $K$, which is also the default value in the function.
 
 ```{r}
 set.seed(10)
@@ -67,14 +76,14 @@ Q_PRE_1
 
 ## Re-estimation by iterative projection
 
-Running 'pre_est' gives us the estimated directions corresponding to the strongest factors. Using these directions as the initial directions, we can perform iterative projection to better estimate the factor loading spaces, which can be computed by the function 'iter_proj'. Similarly, we can set \code{z} to be the number of factors if it is known. 
+Running 'pre_est' gives us the estimated directions corresponding to the strongest factors. Using these directions as the initial directions, we can perform iterative projection to better estimate the factor loading spaces, which can be computed by the function 'iter_proj'. Similarly, we can set $z$ to be the number of factors if it is known. 
 
 ```{r}
 set.seed(10)
 Q_PROJ_2 = iter_proj(X, initial_direction = Q_PRE_1, z = c(2,2))
 Q_PROJ_2
 ```
-@Chen_Lam use the final estimated directions to further estimate the rank of core tensors. Thus, the default value for \code{z} is \code{z = rep(1,K)}.
+@Chen_Lam use the final estimated directions to further estimate the rank of core tensors. Thus, the default value for $z$ is a vector of ones of length $K$.
 
 ```{r}
 set.seed(10)

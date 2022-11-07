@@ -10,7 +10,14 @@
 #' @export
 #' @import rTensor MASS
 #' @examples
-#' \dontrun{
+#' # Example of real data set
+#' set.seed(10)
+#' Q_PRE = pre_est(value_weight_tensor)
+#' Q_PROJ = iter_proj(value_weight_tensor, initial_direction = Q_PRE)
+#' bs_rank = bs_cor_rank(value_weight_tensor, Q_PROJ)
+#' bs_rank
+#'
+#' \donttest{
 #' # Example using generated data
 #' K = 2
 #' T = 100
@@ -25,13 +32,6 @@
 #' Q_PRE = pre_est(X)
 #' Q_PROJ = iter_proj(X, initial_direction = Q_PRE)
 #' bs_rank = bs_cor_rank(X, Q_PROJ)
-#' bs_rank
-#'
-#' # Example of real data set
-#' set.seed(10)
-#' Q_PRE = pre_est(value_weight_tensor)
-#' Q_PROJ = iter_proj(value_weight_tensor, initial_direction = Q_PRE)
-#' bs_rank = bs_cor_rank(value_weight_tensor, Q_PROJ)
 #' bs_rank
 #' }
 

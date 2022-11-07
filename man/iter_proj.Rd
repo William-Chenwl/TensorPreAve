@@ -25,7 +25,18 @@ Function for Iterative Projection to re-estimate the factor loading matrices.
 Input a tensor time series and initial projection direction, return the estimated factor loading matrices using iterative projection.
 }
 \examples{
-\dontrun{
+# Example of a real data set
+set.seed(10)
+Q_PRE = pre_est(value_weight_tensor)
+Q_PROJ = iter_proj(value_weight_tensor, initial_direction = Q_PRE)
+Q_PROJ
+
+set.seed(10)
+Q_PRE = pre_est(value_weight_tensor)
+Q_PROJ_2 = iter_proj(value_weight_tensor, initial_direction = Q_PRE, z = c(2,2))
+Q_PROJ_2
+
+\donttest{
 # Example using generated data
 K = 2
 T = 100
@@ -40,16 +51,5 @@ X = Data_test$X
 Q_PRE = pre_est(X)
 Q_PROJ = iter_proj(X, initial_direction = Q_PRE, z = r)
 Q_PROJ
-
-# Example of a real data set
-set.seed(10)
-Q_PRE = pre_est(value_weight_tensor)
-Q_PROJ = iter_proj(value_weight_tensor, initial_direction = Q_PRE)
-Q_PROJ
-
-set.seed(10)
-Q_PRE = pre_est(value_weight_tensor)
-Q_PROJ_2 = iter_proj(value_weight_tensor, initial_direction = Q_PRE, z = c(2,2))
-Q_PROJ_2
 }
 }

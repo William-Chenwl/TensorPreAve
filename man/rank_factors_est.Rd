@@ -44,7 +44,12 @@ The complete procedure to estimate both rank and factor loading matrices simulta
 Input a tensor time series and return the estimated factor loading matrices and rank of core tensor.
 }
 \examples{
-\dontrun{
+# Example of real data set
+set.seed(10)
+results = rank_factors_est(value_weight_tensor)
+results
+
+\donttest{
 # Example using generated data
 K = 2
 T = 100
@@ -57,11 +62,6 @@ set.seed(10)
 Data_test = tensor_data_gen(K,T,d,r,re,eta,u)
 X = Data_test$X
 results = rank_factors_est(X)
-results
-
-# Example of real data set
-set.seed(10)
-results = rank_factors_est(value_weight_tensor)
 results
 }
 }
