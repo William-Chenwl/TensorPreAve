@@ -1,11 +1,11 @@
 #' @title Bootstrap Rank Estimation.
 #' @description Function to estimate the rank of the core tensor by Bootstrapped Correlation Thresholding.
-#' @details Input a tensor time series and estimated projection directions, return the estimated rank of core tensor.
+#' @details Input a tensor time series and estimated directions corresponding to the strongest factors, return the estimated rank of core tensor.
 #' @param X A 'Tensor' object defined in package \pkg{rTensor} with \eqn{K+1} modes. Mode-1 should correspond to the time mode.
-#' @param initial_direction Initial direction for projection, written in a list of \eqn{K} vectors. This can be obtained from the iterative projection procedure.
+#' @param initial_direction Direction corresponds to the strongest factors, written in a list of \eqn{K} vectors. This can be obtained from the iterative projection procedure by using function \code{iter_proj}.
 #' @param r_range Approximate range of \eqn{r_k} (number of factors) to search from, written in a list of \eqn{K} vectors (e.g. \code{z = list(c(1,10),c(1,10))} for \eqn{K = 2}). Default range is 1 to 10 for all modes.
-#' @param C_range The range of constant C for calculating threshold. Default is \code{seq(0,100,0.1)}.
-#' @param B Number of bootstrap samples. Default is 50.
+#' @param C_range The range of constant C for calculating threshold. Default is \code{seq(0,100,0.1)}, and set to be automatically tuned as data-driven.
+#' @param B Number of bootstrap samples. Default is 50. Can be set as 10 to save time when dimension is large.
 #' @return A vector of length \eqn{K}, indicating estimated number of factors in each mode.
 #' @export
 #' @import rTensor MASS
@@ -23,7 +23,7 @@
 #' T = 100
 #' d = c(40,40)
 #' r = c(2,2)
-#' re = 10
+#' re = c(2,2)
 #' eta = list(c(0,0),c(0,0))
 #' u = list(c(-2,2),c(-2,2))
 #' set.seed(10)
@@ -42,20 +42,20 @@
 bs_cor_rank = function(    X                                                  # the target 'Tensor' object, where mode-1 is the time mode
                          , initial_direction                                  # direction for projection written in a list of K vectors, can be obtained from the iterative projection
                          , r_range = NULL                                     # the approximate range of r_k (number of factors), written in a list of K vectors (e.g. list(c(1,5),c(1,5)) for matrix time series). The default range is c(1,10) for all modes.
-                         , C_range = seq(0,100,0.1)[-1]                       # the range of C for calculating threshold
+                         , C_range = NULL                                     # the range of C for calculating threshold
                          , B = 50                                             # number of bootstrap samples
 )
   # output : a vector of K elements of estimated number of factors in each mode
 {
   ### Create educated grid from the un-Bootstrapped data
-  K = length(X@modes) - 1
+  K = X@num_modes - 1
   d = X@modes[2:(K+1)]
   T = X@modes[1]
 
   # Demean X
   X_mean = apply(X@data, 2:(K+1), mean)
   X_mean_T = aperm(array(X_mean, c(d,T)), c(K+1,1:K))
-  X_demean = as.tensor(X@data - X_mean_T)
+  X_demean = rTensor::as.tensor(X@data - X_mean_T)
 
 
   r_sw_hat = numeric(K)
@@ -63,6 +63,11 @@ bs_cor_rank = function(    X                                                  # 
   if (is.null(r_range))
   {
     r_range = rep(list(c(1,10)),K)
+  }
+
+  if (is.null(C_range))
+  {
+    C_range = seq(0,100,0.1)[-1]
   }
 
   # Eigenvalues Record
@@ -83,7 +88,7 @@ bs_cor_rank = function(    X                                                  # 
     }
 
     # Calculate projected data Y_k
-    mat_X_k_demean = unfold(X_demean,row_idx = c(k + 1, 1), col_idx = c(1:(K+1))[-c(1, k + 1)])
+    mat_X_k_demean = rTensor::unfold(X_demean,row_idx = c(k + 1, 1), col_idx = c(1:(K+1))[-c(1, k + 1)])
     Y_k = matrix(mat_X_k_demean@data %*% q_minus_k, c(d_k,T))
 
     # Calculate Correlation Matrix
@@ -102,7 +107,14 @@ bs_cor_rank = function(    X                                                  # 
     grid_result_k = numeric(length(C0))
     for (c in 1:length(C0))
     {
-      grid_result_k[c] = sum(eigen_R_k > 1 + C0[c]/sqrt(T))
+      if (K <=2)
+      {
+        grid_result_k[c] = sum(eigen_R_k > 1 + C0[c]/sqrt(T))
+      }
+      else
+      {
+        grid_result_k[c] = sum(eigen_R_k > 1 + C0[c]/T)
+      }
     }
 
 
@@ -112,7 +124,7 @@ bs_cor_rank = function(    X                                                  # 
     C_k = C0[grid_index_min_k:grid_index_max_k]
 
 
-    mat_X_k_demean = unfold(X_demean,row_idx = c(k + 1, 1), col_idx = c(1:(K+1))[-c(1, k + 1)])
+    mat_X_k_demean = rTensor::unfold(X_demean,row_idx = c(k + 1, 1), col_idx = c(1:(K+1))[-c(1, k + 1)])
 
 
 
@@ -140,7 +152,14 @@ bs_cor_rank = function(    X                                                  # 
 
       for (c in 1:length(C_k))
       {
-        sw_result_k[b,c] = sum(eigen_R_k_sw > 1 + C_k[c]/sqrt(T))
+        if (K <=2)
+        {
+          sw_result_k[b,c] = sum(eigen_R_k_sw > 1 + C_k[c]/sqrt(T))
+        }
+        else
+        {
+          sw_result_k[b,c] = sum(eigen_R_k_sw > 1 + C_k[c]/T)
+        }
       }
 
 

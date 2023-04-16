@@ -21,7 +21,7 @@ library(TensorPreAve)
 
 ## Data of tensor time series
 
-This package provides function to estimate the rank and factor loading spaces of time series tensor factor models. A $K$-th order tensor time series can be stored as a 'Tensor' object with $K+1$ modes, with mode-1 corresponds to time. See \pkg{rTensor} for the operations of 'Tensor' objects. As an example, value weighted Fama-French portfolio returns data formed on 10 levels of size and 10 levels of operating profitability can be shaped as a tensor time series, with monthly data from July 1973 to June 2021 so that T = 576. (See @Chen_Lam for more details.) The data tensor thus has size 576 × 10 × 10 tensor, and can be stored in the following 'Tensor' object.
+This package provides functions to estimate the rank and factor loading spaces of time series tensor factor models. A $K$-th order tensor time series can be stored as a 'Tensor' object with $K+1$ modes, with mode-1 corresponds to time. See package $rTensor$ for the operations of 'Tensor' objects. As an example, value weighted Fama-French portfolio returns data formed on 10 levels of size and 10 levels of operating profitability can be shaped as a tensor time series, with monthly data from July 1973 to June 2021 so that T = 576. (See @Chen_Lam for more details.) The data tensor thus has size 576 × 10 × 10, and can be stored in the following 'Tensor' object.
 
 ```{r}
 value_weight_tensor@modes
@@ -34,8 +34,8 @@ We also provide a function 'tensor_data_gen' to generate random tensor time seri
 K = 2                     # The number of modes for the tensor time series
 n = 100                   # Length of time series.
 d = c(10,10)              # Dimensions of each mode of the tensor
-r = c(2,2)                # Rank of core tensors,
-re = 10                   # Dimension of the cross-sectional common error
+r = c(2,2)                # Rank of core tensors
+re = c(2,2)               # Rank of the cross-sectional common error core tensors
 eta = list(c(0,0),c(0,0)) # Control factor strengths in each factor loading matrix
 u = list(c(-2,2),c(-2,2)) # Control the range of elements in each factor loading matrix
 
@@ -49,13 +49,12 @@ E_ts = Data_test$E_ts
 
 X@modes
 F_ts@modes
-E_ts@modes
 dim(A[[1]])
 ```
 
 
 
-## Pre-averaging method to estimate the strongest factor
+## Pre-averaging procedure to estimate the strongest factor
 
 Given a time series tensor factor model, 'pre_est' estimates the factor loading matrices by setting $z$ to be the rank of core tensors if it is known. 
 
@@ -66,7 +65,7 @@ Q_PRE_2 = pre_est(X, z = c(2,2))
 Q_PRE_2
 ```
 
-For most cases we do not know the true number of factors. In @Chen_Lam, pre-averaging procedure is used to estimate the directions corresponding to the strongest factors by setting $z$ to be a vector of ones of length $K$, which is also the default value in the function.
+For most cases we do not know the true number of factors. In @Chen_Lam, pre-averaging procedure is used to estimate the directions corresponding to the strongest factors by setting $z$ to be a vector of ones of length $K$, which is also the default choice in the function. The estimated directions will be used to feed the iterative projection procedure in function 'iter_proj', which will be shown in the next section.
 
 ```{r}
 set.seed(10)
@@ -74,16 +73,34 @@ Q_PRE_1 = pre_est(X)
 Q_PRE_1
 ```
 
+The default choice of other parameters in 'pre_est' are set to be applied properly in most scenarios and dimensions. For parameter $eigen_j$, we provide an alternative way to tune it manually using function 'pre_eigenplot', which plots the eigenvalues of the sample covariance matrix for a randomly chosen sample. A large dip should be observed at the ($r_k+1$)-th position of the plot, where $r_k$ is the true number of factor of mode-$k$. Ideally, $eigen_j$ should be chosen to be greater than $r_k$, so we suggest setting $eigen_j$ to be a bit larger than the position of dip observed to avoid missing potential weak factors. If such a dip is not observed, try to run the function for a few times until it can be observed. See @Chen_Lam for more details.
+
+```{r}
+set.seed(7)
+pre_eigenplot(X, k = 2)
+```
+
+In the above example, a large dip is observed in the 2nd position, but there is also a dip in the 3rd position. To avoid missing potential weak factors, we can choose $eigen_j$ to be 3 (or 4), and run 'pre_est' using self-defined $eigen_j$. In this case, it gives the same result as using the default choice.
+
+```{r}
+set.seed(10)
+pre_est(X, eigen_j = c(3,3))
+```
+
+
+
+
+
 ## Re-estimation by iterative projection
 
-Running 'pre_est' gives us the estimated directions corresponding to the strongest factors. Using these directions as the initial directions, we can perform iterative projection to better estimate the factor loading spaces, which can be computed by the function 'iter_proj'. Similarly, we can set $z$ to be the number of factors if it is known. 
+Running 'pre_est' gives the estimated directions corresponding to the strongest factors. Using these directions as the initial directions, we can apply the Algorithm for Iterative Projection Direction Refinement to estimate the factor loading spaces, which can be computed by the function 'iter_proj'. (See @Chen_Lam for more details of the algorithm.) Similarly, we can set $z$ to be the number of factors if it is known. 
 
 ```{r}
 set.seed(10)
 Q_PROJ_2 = iter_proj(X, initial_direction = Q_PRE_1, z = c(2,2))
 Q_PROJ_2
 ```
-@Chen_Lam use the final estimated directions to further estimate the rank of core tensors. Thus, the default value for $z$ is a vector of ones of length $K$.
+Similar to the use of 'pre_est', if we do not know the number of factors, we can use the default $z$, which is a vector of ones of length $K$. In this case, 'iter_proj' outputs estimated directions of the strongest factors after iterative projection, which can be used to estimate the rank of core tensors by function 'bs_cor_rank', as will be introduced in the next section.
 
 ```{r}
 set.seed(10)
@@ -91,19 +108,34 @@ Q_PROJ_1 = iter_proj(X, initial_direction = Q_PRE_1)
 Q_PROJ_1
 ```
 
+
+
+
 ## Core tensor rank estimation using projected data
 
-With the estimated directions produced by iterative projection, 'bs_cor_rank' is a function to estimate the rank of core tensors by Bootstrapped Correlation Thresholding.
+With the estimated directions given by 'iter_proj', we can run 'bs_cor_rank' to estimate the rank of core tensors by Bootstrapped Correlation Thresholding proposed by @Chen_Lam.
 
 ```{r}
 set.seed(10)
-bs_rank = bs_cor_rank(X, Q_PROJ_1)
+bs_rank = bs_cor_rank(X, initial_direction = Q_PROJ_1)
 bs_rank
 ```
 
+'bs_cor_rank' may sometimes take too long to compute if the dimension of the tensor is large. In this case, we can reduce the parameter $B$, which is the number of bootstrapped samples. The default value for $B$ is 50, and empirically, in most scenarios, reducing $B$ from 50 to 10 does not significantly change the results. Other parameters of 'bs_cor_rank' are set to be data-driven and should apply well in general.
+
+```{r}
+set.seed(10)
+bs_rank = bs_cor_rank(X, initial_direction = Q_PROJ_1, B = 10)
+bs_rank
+```
+
+
+
+
+
 ## The whole rank and factor loading estimations in a single step
 
-With the help of all above functions, given a tensor time series with unknown rank of core tensor, we can actually estimate the rank and factor loading matrices simultaneously. This can be done by the function 'rank_factors_est'.
+To simplify the whole estimation procedure, we provide a unified function 'rank_factors_est' to integrate all functions mentioned before, which is able to estimate both the rank of the core tensors and factor loading matrices simultaneously for a tensor time series.
 
 ```{r}
 set.seed(10)
@@ -111,7 +143,7 @@ results = rank_factors_est(X)
 results
 ```
 
-Alternatively, if the rank of core tensor is already known, we can set it as \code{input_r}, then the function outputs the estimator of factor loading matrices accordingly.
+If the rank of core tensors is already known, we can set it as $input_r$ in 'rank_factors_est', then the function outputs the estimator of factor loading matrices accordingly.
 ```{r}
 set.seed(10)
 results = rank_factors_est(X, input_r = c(2,2))

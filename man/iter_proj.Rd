@@ -4,12 +4,12 @@
 \alias{iter_proj}
 \title{Iterative Projection Estimator.}
 \usage{
-iter_proj(X, initial_direction, proj_N = 30, z = rep(1, length(X@modes) - 1))
+iter_proj(X, initial_direction, proj_N = 30, z = rep(1, X@num_modes - 1))
 }
 \arguments{
 \item{X}{A 'Tensor' object defined in package \pkg{rTensor} with \eqn{K+1} modes. Mode-1 should correspond to the time mode.}
 
-\item{initial_direction}{Initial direction for projection, written in a list of \eqn{K} vectors. This can be obtained from the pre-averaging procedure.}
+\item{initial_direction}{Initial direction for projection, written in a list of \eqn{K} vectors. This can be obtained from the pre-averaging procedure by using function \code{pre_est}.}
 
 \item{proj_N}{Number of iterations, should be a positive integer. Default is 30.}
 
@@ -19,10 +19,10 @@ iter_proj(X, initial_direction, proj_N = 30, z = rep(1, length(X@modes) - 1))
 A list of \eqn{K} estimated factor loading matrices.
 }
 \description{
-Function for Iterative Projection to re-estimate the factor loading matrices.
+Function for Iterative Projection Direction Refinement to re-estimate the factor loading matrices.
 }
 \details{
-Input a tensor time series and initial projection direction, return the estimated factor loading matrices using iterative projection.
+Input a tensor time series and initial estimated directions corresponding to the strongest factors, return the estimated factor loading matrices (or directions) using the Algorithm for Iterative Projection Direction Refinement.
 }
 \examples{
 # Example of a real data set
@@ -42,7 +42,7 @@ K = 2
 T = 100
 d = c(40,40)
 r = c(2,2)
-re = 10
+re = c(2,2)
 eta = list(c(0,0),c(0,0))
 u = list(c(-2,2),c(-2,2))
 set.seed(10)

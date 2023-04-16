@@ -1,17 +1,11 @@
-## Resubmission
-This is a resubmission. In this version I have:
+## Updated Version 
+This is a new version of the package. In this version I have:
 
-* Omitted the redundant "Tools for" at the start of title.
+Updated functions 'tensor_data_gen', 'pre_est', 'iter_proj', 'bs_cor_rank' and 'rank_factors_est' to accommodate updated assumptions and estimation procedures in the revised paper 'Rank and Factor Loadings Estimation in Time Series Tensor Factor Model by Pre-averaging'. 
 
-* Used the Authors@R field and declare Maintainer, Authors and Contributors with their appropriate roles with person() calls.
+Added a function 'pre_eigenplot' to assist users tune certain parameter in 'pre_est'.
 
-* Written package names, software names and API (application programming interface) names in single quotes in title and description.
-
-* Avoided using "T" or "F" as vector names in 'tensor_data_gen'.
-
-* Unwrapped small examples if they are executable in < 5 sec, and replacing dontrun{} with \donttest{}.
-
-* Updated examples in 'tensor_data_gen' to avoid messages on the console that cannot be easily suppresed.
+Updated vignettes and examples accordingly.
 
 ## R CMD check results
 

@@ -1,0 +1,26 @@
+{
+    "id": "08BE99C3",
+    "path": "E:/weilin/LSE/github/TensorPreAve/R/bs_cor_rank.R",
+    "project_path": "R/bs_cor_rank.R",
+    "type": "r_source",
+    "hash": "3031757860",
+    "contents": "",
+    "dirty": false,
+    "created": 1667655617120.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "18,2",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1667860310,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1667860310176,
+    "read_only": false,
+    "read_only_alternatives": []
+}

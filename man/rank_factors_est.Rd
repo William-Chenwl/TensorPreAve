@@ -8,10 +8,11 @@ rank_factors_est(
   X,
   proj_N = 30,
   r_range = NULL,
-  C_range = seq(0, 100, 0.1)[-1],
+  C_range = NULL,
   M0 = 200,
   M = 5,
   B = 50,
+  eigen_j = NULL,
   input_r = NULL
 )
 }
@@ -22,13 +23,15 @@ rank_factors_est(
 
 \item{r_range}{Approximate range of \eqn{r_k} (number of factors) to search from, written in a list of \eqn{K} vectors (e.g. \code{z = list(c(1,10),c(1,10))} for \eqn{K = 2}). Default range is 1 to 10 for all modes.}
 
-\item{C_range}{The range of constant C for calculating threshold. Default is \code{seq(0,100,0.1)}.}
+\item{C_range}{The range of constant C for calculating threshold. Default is \code{seq(0,100,0.1)}, Default is \code{seq(0,100,0.1)}, and set to be automatically tuned as data-driven.}
 
-\item{M0}{Number of random samples to generate in pre-averaging procedure. Usually set as 200, or \eqn{min(d_{-k}^2 /4, 1000)} for potential more samples. Default is 200.}
+\item{M0}{Number of random samples to generate in pre-averaging procedure. Default is 200.}
 
 \item{M}{Number of chosen samples for pre-averaging. Usually can be set as constants (5 or 10) or 2.5 percents of \code{M0}. Default is 5.}
 
-\item{B}{Number of bootstrap samples for estimating rank of core tensor by bootstrapped correlation thresholding. Default is 50.}
+\item{B}{Number of bootstrap samples for estimating rank of core tensor by bootstrapped correlation thresholding. Default is 50. Can be set as 10 when dimension is large.}
+
+\item{eigen_j}{The j-th eigenvalue to calculate eigenvalue-ratio for a randomly chosen sample, written as a vector of length \eqn{K}. Default is \eqn{d_k/2} for all modes. Can be manually tuned using function \code{pre_eigenplot}.}
 
 \item{input_r}{The rank of core tensor if it is already know, written as a vector of length \eqn{K}. If no input, it will be estimated. Default is \code{NULL}.}
 }
@@ -38,7 +41,7 @@ A list containing the following: \cr
     \code{loadings}: A list of \eqn{K} estimated factor loading matrices.
 }
 \description{
-The complete procedure to estimate both rank and factor loading matrices simultaneously.
+The complete procedure to estimate both rank and factor loading matrices simultaneously for a tensor time series.
 }
 \details{
 Input a tensor time series and return the estimated factor loading matrices and rank of core tensor.
@@ -55,7 +58,7 @@ K = 2
 T = 100
 d = c(40,40)
 r = c(2,2)
-re = 10
+re = c(2,2)
 eta = list(c(0,0),c(0,0))
 u = list(c(-2,2),c(-2,2))
 set.seed(10)

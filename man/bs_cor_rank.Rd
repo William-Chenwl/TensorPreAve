@@ -4,24 +4,18 @@
 \alias{bs_cor_rank}
 \title{Bootstrap Rank Estimation.}
 \usage{
-bs_cor_rank(
-  X,
-  initial_direction,
-  r_range = NULL,
-  C_range = seq(0, 100, 0.1)[-1],
-  B = 50
-)
+bs_cor_rank(X, initial_direction, r_range = NULL, C_range = NULL, B = 50)
 }
 \arguments{
 \item{X}{A 'Tensor' object defined in package \pkg{rTensor} with \eqn{K+1} modes. Mode-1 should correspond to the time mode.}
 
-\item{initial_direction}{Initial direction for projection, written in a list of \eqn{K} vectors. This can be obtained from the iterative projection procedure.}
+\item{initial_direction}{Direction corresponds to the strongest factors, written in a list of \eqn{K} vectors. This can be obtained from the iterative projection procedure by using function \code{iter_proj}.}
 
 \item{r_range}{Approximate range of \eqn{r_k} (number of factors) to search from, written in a list of \eqn{K} vectors (e.g. \code{z = list(c(1,10),c(1,10))} for \eqn{K = 2}). Default range is 1 to 10 for all modes.}
 
-\item{C_range}{The range of constant C for calculating threshold. Default is \code{seq(0,100,0.1)}.}
+\item{C_range}{The range of constant C for calculating threshold. Default is \code{seq(0,100,0.1)}, and set to be automatically tuned as data-driven.}
 
-\item{B}{Number of bootstrap samples. Default is 50.}
+\item{B}{Number of bootstrap samples. Default is 50. Can be set as 10 to save time when dimension is large.}
 }
 \value{
 A vector of length \eqn{K}, indicating estimated number of factors in each mode.
@@ -30,7 +24,7 @@ A vector of length \eqn{K}, indicating estimated number of factors in each mode.
 Function to estimate the rank of the core tensor by Bootstrapped Correlation Thresholding.
 }
 \details{
-Input a tensor time series and estimated projection directions, return the estimated rank of core tensor.
+Input a tensor time series and estimated directions corresponding to the strongest factors, return the estimated rank of core tensor.
 }
 \examples{
 # Example of real data set
@@ -46,7 +40,7 @@ K = 2
 T = 100
 d = c(40,40)
 r = c(2,2)
-re = 10
+re = c(2,2)
 eta = list(c(0,0),c(0,0))
 u = list(c(-2,2),c(-2,2))
 set.seed(10)

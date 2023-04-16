@@ -1,0 +1,26 @@
+---
+title: "seminar_7"
+output: pdf_document
+date: "2022-11-12"
+---
+
+```{r}
+ridge.reg <- function(x, y, th, x.pred = NULL) {
+# estimation of beta in y = a + x beta + epsilon (linear regression)
+# using ridge regression
+# th is the penalization parameter in Lagrangian form
+# use th = 0 for full regression
+# note the intercept is added
+# x.pred is a new x for which we wish to make prediction
+d <- dim(x)
+new.x <- matrix(c(rep(1, d[1]), x), d[1], d[2]+1) ## Adding intercept term
+gram = t(new.x) %*% new.x
+beta <- solve(gram + th*diag(d[2]+1)) %*% t(new.x) %*% matrix(y, d[1], 1)
+condnum = max(svd(gram + th*diag(d[2]+1))$d)/min(svd(gram + th*diag(d[2]+1))$d)
+pr <- 0
+if (!is.null(x.pred)) pr <- sum(beta * c(1, x.pred))
+list(beta = beta, pr=pr, condnum = condnum)
+}
+```
+
+
